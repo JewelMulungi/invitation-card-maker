@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wedding Invitation Cards</title>
+<script data-goatcounter="https://eventcards.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script>/** @license
  *
  * jsPDF - PDF Document creation from JavaScript
@@ -505,6 +506,14 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outli
 (function(){
   var jw = document.getElementById('jsWarn'); if(jw) jw.hidden = true;
 
+  // Activity tracking (GoatCounter). Events are dropped quietly if the counter is blocked or not loaded.
+  function track(path, title){
+    try{ if(window.goatcounter && goatcounter.count) goatcounter.count({path:path, title:title || path, event:true}); }catch(e){}
+  }
+  function trackCard(action){
+    track(action + ': ' + (nameIn.value.trim() || 'guest') + ' (admits ' + (admitIn.value.trim() || '-') + ')', action);
+  }
+
   var TXT = {"title": "Wedding Invitation", "para": "Together with their families\nMr. & Mrs. Sample Parent\nand Mr. & Mrs. Example Parent\nrequest the pleasure of the company of", "to": "to celebrate the marriage of", "n1": "Alex Example", "amp": "&", "n2": "Sam Sample", "day": "SATURDAY", "date": "12", "month": "DECEMBER", "year": "2026", "venue": "Ceremony: Example Chapel, 10:00 AM", "recep": "Reception: Sample Gardens, 2:00 PM", "adL": "This card admits", "adR": "person(s)", "rsvp": "RSVP", "c1n": "Contact One", "c1p": "+000 000 000 001", "c2n": "Contact Two", "c2p": "+000 000 000 002", "c3n": "Contact Three", "c3p": "+000 000 000 003"};
   var GEO = {"title": {"font": "alex", "size": 99.5, "x": 604.8, "y": 239.0, "color": "#223d04", "align": "center", "maxw": 800}, "to": {"font": "belleza", "size": 37.25, "x": 600.7, "y": 693.0, "color": "#000000", "align": "center", "maxw": 900}, "n1": {"font": "alex", "size": 99.47, "x": 585.0, "y": 821.0, "color": "#223d04", "align": "center", "maxw": 860}, "amp": {"font": "alex", "size": 94.95, "x": 614.2, "y": 928.0, "color": "#223d04", "align": "center", "maxw": 150}, "n2": {"font": "alex", "size": 99.36, "x": 595.7, "y": 998.0, "color": "#223d04", "align": "center", "maxw": 860}, "day": {"font": "belleza", "size": 40.02, "x": 349.7, "y": 1148.0, "color": "#000000", "align": "center", "maxw": 325}, "date": {"font": "belleza", "size": 104.5, "x": 608.7, "y": 1166.0, "color": "#223d04", "align": "center", "maxw": 200}, "month": {"font": "belleza", "size": 40.45, "x": 864.1, "y": 1148.0, "color": "#000000", "align": "center", "maxw": 326}, "year": {"font": "belleza", "size": 38.73, "x": 611.2, "y": 1231.0, "color": "#000000", "align": "center", "maxw": 160}, "venue": {"font": "belleza", "size": 37.2, "x": 604.1, "y": 1295.0, "color": "#000000", "align": "center", "maxw": 900}, "recep": {"font": "belleza", "size": 37.05, "x": 604.5, "y": 1346.0, "color": "#000000", "align": "center", "maxw": 900}, "adL": {"font": "belleza", "size": 36.92, "x": 616.9, "y": 1433.0, "color": "#000000", "align": "right", "maxw": 330}, "adR": {"font": "belleza", "size": 36.19, "x": 754.5, "y": 1433.0, "color": "#000000", "align": "left", "maxw": 300}, "rsvp": {"font": "alex", "size": 36.5, "x": 593.7, "y": 1531.0, "color": "#000000", "align": "center", "maxw": 205}, "c1n": {"font": "belleza", "size": 28.3, "x": 334.7, "y": 1584.0, "color": "#000000", "align": "center", "maxw": 250}, "c1p": {"font": "belleza", "size": 28.09, "x": 332.7, "y": 1622.0, "color": "#000000", "align": "center", "maxw": 250}, "c2n": {"font": "belleza", "size": 28.48, "x": 616.2, "y": 1585.0, "color": "#000000", "align": "center", "maxw": 250}, "c2p": {"font": "belleza", "size": 28.09, "x": 614.7, "y": 1622.0, "color": "#000000", "align": "center", "maxw": 250}, "c3n": {"font": "belleza", "size": 27.89, "x": 894.7, "y": 1584.0, "color": "#000000", "align": "center", "maxw": 250}, "c3p": {"font": "belleza", "size": 28.3, "x": 893.7, "y": 1622.0, "color": "#000000", "align": "center", "maxw": 250}};
   var FAM = {belleza:'"Belleza Embedded"', alex:'"Alex Brush Embedded"'};
@@ -635,6 +644,7 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outli
     build(kind, function(blob, ext){
       if(!blob){ status.textContent = 'Could not create the file. Refresh the page and try again.'; return; }
       status.textContent = plainDownload(blob, baseName() + '.' + ext);
+      trackCard(kind === 'pdf' ? 'save-pdf' : 'save-picture');
     });
   }
   var shareBtn = document.getElementById('shareBtn');
@@ -642,7 +652,7 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outli
     if(navigator.canShare && navigator.share && navigator.canShare({files:[new File([new Blob(['x'])],'t.jpg',{type:'image/jpeg'})]})) shareBtn.hidden = false;
   }catch(e){}
   function doShare(files){
-    navigator.share({files: files, title: baseName()}).then(function(){ status.textContent = 'Shared.'; },
+    navigator.share({files: files, title: baseName()}).then(function(){ status.textContent = 'Shared.'; trackCard('share'); },
       function(e){ status.textContent = (e && e.name === 'AbortError') ? 'Not shared.' : 'Sharing did not work here. Use Save as PDF instead.'; });
   }
   shareBtn.addEventListener('click', function(){
@@ -663,16 +673,21 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outli
 
   editOpen.addEventListener('click', function(){
     editOpen.hidden = true; buildFields(); editor.hidden = false;
+    track('editor-open');
     editor.scrollIntoView({behavior:'smooth', block:'start'});
   });
 
+  var edited = {};
   function makeField(key, label, kind){
     var wrap = document.createElement('div'); wrap.className = 'field';
     var lab = document.createElement('label'); lab.htmlFor = 'f_' + key; lab.textContent = label;
     var inp = document.createElement(kind === 'area' ? 'textarea' : 'input');
     inp.id = 'f_' + key; if(kind !== 'area') inp.type = 'text'; else inp.rows = 5;
     inp.value = T[key] || ''; inp.autocomplete = 'off';
-    inp.addEventListener('input', function(){ T[key] = inp.value; editStatus.textContent = ''; schedule(); });
+    inp.addEventListener('input', function(){
+      T[key] = inp.value; editStatus.textContent = ''; schedule();
+      if(!edited[key]){ edited[key] = true; track('wording-edit: ' + key, 'wording-edit'); }
+    });
     wrap.appendChild(lab); wrap.appendChild(inp); return wrap;
   }
   function buildFields(){
