@@ -489,11 +489,10 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outli
       <h2>Edit card wording</h2>
       <p class="hint">Changes show on the card straight away. The fonts, colours and positions stay the same; long text shrinks to fit.</p>
       <div id="fields"></div>
-      <button class="btn" id="saveFile" type="button">Save as new file</button>
-      <button class="btn ghost" id="undoAll" type="button">Undo all changes</button>
+      <button class="btn" id="undoAll" type="button">Undo all changes</button>
       <button class="btn ghost" id="closeEditor" type="button">Close editor</button>
       <div class="status" id="editStatus" role="status"></div>
-      <p class="hint">Saving makes a new copy of this file with the new wording. Use the new copy from then on, and send it to anyone else who makes cards.</p>
+      <p class="hint">Changes apply to the cards you save now. They are not kept after the page is closed or refreshed.</p>
     </section>
   </div>
   <div class="preview">
@@ -504,24 +503,6 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outli
 
 <script>
 (function(){
-  // Rebuild the file from its own known parts, so anything a browser extension
-  // has slipped into the page is not copied into saved files.
-  var PRISTINE = (function(){
-    function pick(list, test){ for(var i=0;i<list.length;i++) if(test(list[i])) return list[i]; return null; }
-    var hs = document.head ? document.head.children : [];
-    var head = [
-      pick(hs, function(e){ return e.tagName === 'META' && e.hasAttribute('charset'); }),
-      pick(hs, function(e){ return e.tagName === 'META' && e.getAttribute('name') === 'viewport'; }),
-      pick(hs, function(e){ return e.tagName === 'TITLE'; }),
-      pick(hs, function(e){ return e.tagName === 'SCRIPT' && e.textContent.indexOf('jsPDF - PDF Document creation') >= 0; }),
-      pick(hs, function(e){ return e.tagName === 'STYLE' && e.textContent.indexOf('Alex Brush Embedded') >= 0; })
-    ];
-    var body = [document.getElementById('jsWarn'), document.getElementById('app'), document.currentScript];
-    var parts = head.concat(body);
-    for(var i=0;i<parts.length;i++) if(!parts[i]) return '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    function html(list){ return list.map(function(e){ return e.outerHTML; }).join('\n'); }
-    return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' + html(head) + '\n</head>\n<body>\n' + html(body) + '\n</body>\n</html>\n';
-  })();
   var jw = document.getElementById('jsWarn'); if(jw) jw.hidden = true;
 
   var TXT = {"title": "Wedding Invitation", "para": "Together with their families\nMr. & Mrs. Sample Parent\nand Mr. & Mrs. Example Parent\nrequest the pleasure of the company of", "to": "to celebrate the marriage of", "n1": "Alex Example", "amp": "&", "n2": "Sam Sample", "day": "SATURDAY", "date": "12", "month": "DECEMBER", "year": "2026", "venue": "Ceremony: Example Chapel, 10:00 AM", "recep": "Reception: Sample Gardens, 2:00 PM", "adL": "This card admits", "adR": "person(s)", "rsvp": "RSVP", "c1n": "Contact One", "c1p": "+000 000 000 001", "c2n": "Contact Two", "c2p": "+000 000 000 002", "c3n": "Contact Three", "c3p": "+000 000 000 003"};
@@ -709,17 +690,7 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outli
   });
   document.getElementById('closeEditor').addEventListener('click', function(){
     editor.hidden = true; editOpen.hidden = false;
-    status.textContent = JSON.stringify(T) !== ORIGINAL ? 'Your wording changes apply to cards you save now. Use Save as new file in the editor to keep them.' : '';
-  });
-  var TXT_RE = /  var TXT = .*;/;
-  document.getElementById('saveFile').addEventListener('click', function(){
-    if(!TXT_RE.test(PRISTINE)){ editStatus.textContent = 'Could not make the new file in this browser.'; return; }
-    var unsafe = new RegExp('[<' + String.fromCharCode(0x2028, 0x2029) + ']', 'g');
-    var line = '  var TXT = ' + JSON.stringify(T).replace(unsafe, function(c){ return '\\' + 'u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4); }) + ';';
-    var html = PRISTINE.replace(TXT_RE, function(){ return line; });
-    var stamp = new Date(); var d = stamp.getFullYear() + '-' + ('0'+(stamp.getMonth()+1)).slice(-2) + '-' + ('0'+stamp.getDate()).slice(-2);
-    editStatus.textContent = plainDownload(new Blob([html], {type:'text/html'}), 'Wedding-Invitation-Maker ' + d + '.html',
-      'Saved the new file to your Downloads. Use that copy from now on.');
+    status.textContent = JSON.stringify(T) !== ORIGINAL ? 'Your wording changes apply to cards you save now. They are not kept after the page is refreshed.' : '';
   });
 })();
 </script>
